@@ -59,4 +59,14 @@ public:
     /** Apply exhale effect (stronger calming effect) */
     UFUNCTION(BlueprintCallable, Category = "HeartRate")
     void ApplyBreathOut();
+
+private:    
+    bool bIsBreathingIn = false;
+    bool bIsBreathingOut = false;
+
+    UPROPERTY(EditAnywhere, Category = "HeartRate")
+    float MaxExhaleDuration = 2.0f;
+
+    float ExhaleTimer = 0.0f;
+
 };

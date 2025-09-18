@@ -23,21 +23,45 @@ void UHeartRateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    // Heart naturally rises over time (stress effect if player is idle)
-    CurrentHeartRate += NaturalRisePerSecond * DeltaTime;
+    if (bIsBreathingIn)
+    {
+        CurrentHeartRate -= (BreathChange * 0.5) * DeltaTime;
+    }
+    else if (bIsBreathingOut)
+    {
+        CurrentHeartRate -= BreathChange * DeltaTime;
 
-    // Keep the value within safe bounds
+        ExhaleTimer += DeltaTime;
+        if (ExhaleTimer >= MaxExhaleDuration)
+        {
+            StopBreathing();
+        }
+    }
+    else
+    {
+        CurrentHeartRate += NaturalRisePerSecond * DeltaTime;
+    }
     CurrentHeartRate = FMath::Clamp(CurrentHeartRate, MinHeartRate, MaxHeartRate);
 }
+
 
 // Apply inhale effect (smaller calming effect)
 void UHeartRateComponent::ApplyBreathIn()
 {
-    CurrentHeartRate = FMath::Clamp(CurrentHeartRate - BreathChange * 0.5f, MinHeartRate, MaxHeartRate);
+    bIsBreathingIn = true;
+    bIsBreathingOut = false;
 }
 
 // Apply exhale effect (stronger calming effect)
 void UHeartRateComponent::ApplyBreathOut()
 {
-    CurrentHeartRate = FMath::Clamp(CurrentHeartRate - BreathChange, MinHeartRate, MaxHeartRate);
+    bIsBreathingIn = false;
+    bIsBreathingOut = true;
+    ExhaleTimer = 0.0f;
+}
+
+void UHeartRateComponent::StopBreathing()
+{
+    bIsBreathingIn = false;
+    bIsBreathingOut = false;
 }
